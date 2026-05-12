@@ -1,0 +1,30 @@
+####################################################################
+# WOFI CONFIG — Lanzador de aplicaciones
+# Compatible con Wayland/Hyprland
+####################################################################
+
+# Apariencia
+width=550
+height=420
+location=center
+xoffset=0
+yoffset=0
+
+# Comportamiento
+show=drun
+prompt=Search...
+filter_rate=100
+allow_images=true
+image_size=32
+allow_markup=true
+no_actions=true
+insensitive=true
+hide_scroll=true
+matching=fuzzy
+sort_order=alphabetical
+
+# Columnas (1 = lista vertical)
+columns=1
+
+# Clave de caché (para frecuencia de uso)
+key_expand=Tab

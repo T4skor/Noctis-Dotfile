@@ -1,0 +1,141 @@
+/* ================================================================
+   WOFI — NOCTIS Cyberpunk Theme
+   Premium launcher styling with glassmorphism and neon accents
+   ================================================================ */
+
+/* ── Window (container principal) ──────────────────────────────── */
+window {
+    margin:             0;
+    border:             1px solid rgba(189, 0, 255, 0.4);
+    border-radius:      16px;
+    background-color:   rgba(10, 10, 15, 0.88);
+    font-family:        "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;
+    font-size:          14px;
+    color:              #e0d7ff;
+    box-shadow:         0 8px 32px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(189, 0, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    animation:          fadeIn 150ms ease-out;
+}
+
+/* ── Barra de búsqueda ─────────────────────────────────────────── */
+#input {
+    margin:             12px 14px 6px 14px;
+    padding:            12px 18px;
+    border-radius:      12px;
+    border:             1px solid rgba(123, 0, 212, 0.3);
+    background-color:   rgba(15, 15, 26, 0.7);
+    background-image:   none;
+    color:              #e0d7ff;
+    caret-color:        #bd00ff;
+    font-size:          15px;
+    font-weight:        500;
+    letter-spacing:     0.3px;
+    transition:         all 200ms ease;
+}
+
+#input:focus {
+    border-color:       rgba(189, 0, 255, 0.6);
+    background-color:   rgba(15, 15, 26, 0.9);
+    box-shadow:         0 0 16px rgba(189, 0, 255, 0.15),
+                        0 0 4px rgba(189, 0, 255, 0.1);
+    outline:            none;
+}
+
+#input image {
+    color:              #bd00ff;
+}
+
+/* placeholder */
+#input:disabled {
+    color:              #4a4a6a;
+}
+
+/* ── Layout containers ─────────────────────────────────────────── */
+#outer-box {
+    margin:             0;
+    padding:            0;
+}
+
+#inner-box {
+    margin:             4px 8px 10px 8px;
+    padding:            0;
+}
+
+#scroll {
+    margin:             0;
+    padding:            0;
+}
+
+/* ── Cada entrada de app ───────────────────────────────────────── */
+#entry {
+    padding:            10px 14px;
+    margin:             2px 6px;
+    border-radius:      10px;
+    border:             1px solid transparent;
+    color:              #9d8ec4;
+    transition:         all 150ms ease;
+    min-height:         20px;
+}
+
+#entry:selected {
+    background:         linear-gradient(135deg,
+                            rgba(123, 0, 212, 0.2) 0%,
+                            rgba(189, 0, 255, 0.12) 100%);
+    border-color:       rgba(189, 0, 255, 0.45);
+    color:              #e0d7ff;
+    box-shadow:         0 0 12px rgba(189, 0, 255, 0.1),
+                        inset 0 0 20px rgba(189, 0, 255, 0.04);
+}
+
+/* Hover distinto del selected */
+#entry:hover {
+    background-color:   rgba(123, 0, 212, 0.08);
+    border-color:       rgba(123, 0, 212, 0.15);
+    color:              #c5b8e8;
+}
+
+/* ── Texto de la app ───────────────────────────────────────────── */
+#text {
+    color:              inherit;
+    margin-left:        4px;
+}
+
+#text:selected {
+    color:              #f0eaff;
+    font-weight:        500;
+}
+
+/* ── Icono de la app ───────────────────────────────────────────── */
+#img {
+    margin-right:       12px;
+    padding:            2px;
+    border-radius:      8px;
+    background:         rgba(26, 26, 46, 0.5);
+    min-width:          32px;
+    min-height:         32px;
+}
+
+#entry:selected #img {
+    background:         rgba(123, 0, 212, 0.2);
+    box-shadow:         0 0 8px rgba(189, 0, 255, 0.1);
+}
+
+/* ── Separador (si existe) ─────────────────────────────────────── */
+separator {
+    background-color:   rgba(123, 0, 212, 0.12);
+    margin:             4px 20px;
+    min-height:         1px;
+}
+
+/* ── Scrollbar (oculta pero estilizada por si se activa) ──────── */
+scrollbar {
+    opacity:            0;
+}
+
+scrollbar slider {
+    background-color:   rgba(189, 0, 255, 0.3);
+    border-radius:      4px;
+    min-width:          4px;
+    min-height:         20px;
+}

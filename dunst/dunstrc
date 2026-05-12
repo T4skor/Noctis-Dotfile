@@ -1,0 +1,92 @@
+####################################################################
+# DUNSTRC — Configuración de notificaciones
+# Dunst es el daemon de notificaciones compatible con Wayland
+####################################################################
+
+[global]
+    # ── Posición y tamaño ─────────────────────────────────────────
+    origin              = top-right     # Esquina donde aparecen
+    offset              = 15x50         # Desplazamiento (x, y) en píxeles
+    width               = 320           # Ancho de la notificación
+    height              = 200           # Alto máximo
+    gap_size            = 8             # Espacio entre notificaciones
+
+    # ── Apariencia ────────────────────────────────────────────────
+    font                = JetBrainsMono Nerd Font 11
+    corner_radius       = 10            # Bordes redondeados
+    frame_width         = 2             # Grosor del borde
+    frame_color         = "#7b00d4"     # Borde morado oscuro
+    separator_color     = "#2a1a4a"     # Color separador entre notificaciones
+    separator_height    = 2
+    padding             = 12            # Padding vertical
+    horizontal_padding  = 14            # Padding horizontal
+    text_icon_padding   = 10
+
+    # ── Formato ───────────────────────────────────────────────────
+    format              = "<b>%s</b>\n%b"   # Título en negrita + cuerpo
+    markup              = full          # Permitir HTML/markup
+    word_wrap           = yes
+    ellipsize           = middle
+    ignore_newline      = no
+    stack_duplicates    = true
+    hide_duplicate_count = false
+    show_indicators     = yes           # Mostrar indicador de múltiples notifs
+
+    # ── Iconos ────────────────────────────────────────────────────
+    icon_position       = left
+    min_icon_size       = 32
+    max_icon_size       = 48
+    icon_theme          = Papirus-Dark
+
+    # ── Timeouts ─────────────────────────────────────────────────
+    # Tiempo en milisegundos (0 = no desaparece sola)
+    timeout             = 5000          # Por defecto: 5 segundos
+
+    # ── Comportamiento ────────────────────────────────────────────
+    sort                = yes
+    indicate_hidden     = yes
+    shrink              = no
+    monitor             = 0
+    follow              = none          # none, mouse, keyboard
+    dmenu               = wofi -p dunst
+    browser             = xdg-open
+    always_run_script   = true
+    title               = Dunst
+    class               = Dunst
+    ignore_dbusclose    = false
+    notification_limit  = 5            # Máximo de notificaciones visibles
+    history_length      = 20
+
+    # ── Progreso (para notificaciones con barra de progreso) ──────
+    progress_bar                        = true
+    progress_bar_height                 = 8
+    progress_bar_frame_width            = 1
+    progress_bar_min_width              = 150
+    progress_bar_max_width              = 300
+    progress_bar_corner_radius          = 4
+
+    # ── Acciones con el ratón ─────────────────────────────────────
+    mouse_left_click    = close_current
+    mouse_middle_click  = do_action, close_current
+    mouse_right_click   = close_all
+
+[urgency_low]
+    # Prioridad baja: morado claro
+    background          = "#0a0a0f"
+    foreground          = "#9d8ec4"
+    frame_color         = "#2a1a4a"
+    timeout             = 3000
+
+[urgency_normal]
+    # Prioridad normal: morado
+    background          = "#0f0f1a"
+    foreground          = "#e0d7ff"
+    frame_color         = "#7b00d4"
+    timeout             = 5000
+
+[urgency_critical]
+    # Urgente: rosa neón (llama la atención)
+    background          = "#1a0a14"
+    foreground          = "#ff2d6b"
+    frame_color         = "#ff2d6b"
+    timeout             = 0             # No desaparece hasta cerrar manualmente

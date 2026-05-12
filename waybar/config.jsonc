@@ -1,0 +1,136 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 40,
+    "spacing": 0,
+    "exclusive": true,
+
+    "modules-left": [
+        "custom/logo",
+        "hyprland/workspaces",
+        "hyprland/window",
+        "custom/media"
+    ],
+
+    "modules-center": [
+        "clock"
+    ],
+
+    "modules-right": [
+        "pulseaudio",
+        "network",
+        "cpu",
+        "memory",
+        "temperature",
+        "battery",
+        "custom/sep",
+        "tray",
+        "custom/power"
+    ],
+
+    "custom/logo": {
+        "format": "󰣇",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
+    },
+
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "on-click": "activate",
+        "format-icons": {
+            "1": "󰲡", "2": "󰲣", "3": "󰲥",
+            "4": "󰲧", "5": "󰲩", "6": "󰲫",
+            "7": "󰲭", "8": "󰲯", "9": "󰲱",
+            "urgent":  "󰂚",
+            "active":  "󰮯",
+            "default": "󰊠"
+        },
+        "sort-by-number": true,
+        "persistent-workspaces": { "*": [1,2,3,4,5] }
+    },
+
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 50,
+        "separate-outputs": true
+    },
+
+    "clock": {
+        "format": "󰥔  {:%H:%M}",
+        "format-alt": "󰃭  {:%A, %d %B %Y}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  silenciado",
+        "format-icons": {
+            "headphone": "󰋋",
+            "default": ["󰕿","󰖀","󰕾"]
+        },
+        "on-click": "$HOME/.config/waybar/scripts/audio-switcher.sh",
+        "on-click-right": "wpctl set-mute @DEFAULT_SINK@ toggle",
+        "scroll-step": 5
+    },
+
+    "network": {
+        "format-wifi":        "󰤨  {essid}",
+        "format-ethernet":    "󰈀  {ifname}",
+        "format-disconnected":"󰤭  sin red",
+        "tooltip-format":     "󰤨 {essid}  {signalStrength}%\n󰩤 {ipaddr}\n󰕒 {bandwidthUpBytes}  󰇚 {bandwidthDownBytes}",
+        "on-click": "nm-connection-editor",
+        "interval": 5
+    },
+
+    "cpu": {
+        "format": "󰻠  {usage}%",
+        "interval": 2
+    },
+
+    "memory": {
+        "format": "󰍛  {percentage}%",
+        "interval": 3,
+        "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G"
+    },
+
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "󰔏  {temperatureC}°C",
+        "format-critical": "󰸁  {temperatureC}°C"
+    },
+
+    "battery": {
+        "states": { "warning": 30, "critical": 15 },
+        "format": "{icon}  {capacity}%",
+        "format-charging": "󰂄  {capacity}%",
+        "format-plugged":  "󰚥  {capacity}%",
+        "format-icons": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"]
+    },
+
+    "custom/sep": {
+        "format": "|",
+        "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+
+    "custom/power": {
+        "format": "⏻",
+        "tooltip": false,
+        "on-click": "$HOME/.config/wofi/powermenu.sh"
+    },
+
+    "custom/media": {
+        "exec": "$HOME/.config/waybar/scripts/mediaplayer.sh",
+        "return-type": "json",
+        "interval": 3,
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous",
+        "tooltip": true,
+        "max-length": 50
+    }
+}

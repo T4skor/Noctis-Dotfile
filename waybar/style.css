@@ -1,0 +1,199 @@
+/*
+   NOCTIS — Waybar CSS
+   Fuente más grande, estética tech limpia
+   Paleta: #0a0c10 · #00e5c5 · #5eb4ff · #c5cfe8
+*/
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrains Mono", "Symbols Nerd Font Mono";
+    font-size: 14px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+window#waybar {
+    background: rgba(10, 12, 16, 0.90);
+    border-bottom: 1px solid rgba(0, 229, 197, 0.14);
+    color: #c5cfe8;
+}
+
+tooltip {
+    background: #10131a;
+    border: 1px solid rgba(0, 229, 197, 0.25);
+    border-radius: 8px;
+    color: #c5cfe8;
+    font-size: 13px;
+}
+
+/* ── Logo ──────────────────────────────────── */
+
+#custom-logo {
+    color: #00e5c5;
+    font-size: 20px;
+    padding: 0 16px 0 14px;
+}
+
+#custom-logo:hover { color: #5eb4ff; }
+
+/* ── Workspaces ────────────────────────────── */
+
+#workspaces {
+    padding: 0 6px;
+}
+
+#workspaces button {
+    color: #4a5068;
+    background: transparent;
+    padding: 0 7px;
+    font-size: 15px;
+    transition: all 0.15s ease;
+}
+
+#workspaces button:hover {
+    color: #7a86a8;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+}
+
+#workspaces button.active {
+    color: #00e5c5;
+    background: rgba(0, 229, 197, 0.09);
+    border-radius: 4px;
+}
+
+#workspaces button.urgent {
+    color: #ff6b7a;
+    background: rgba(255, 107, 122, 0.10);
+    border-radius: 4px;
+}
+
+/* ── Título ventana ────────────────────────── */
+
+#window {
+    color: #7a86a8;
+    font-size: 13px;
+    padding: 0 12px;
+}
+
+/* ── Media Player ─────────────────────────── */
+
+#custom-media {
+    color: #c3a0e8;
+    font-size: 13px;
+    padding: 0 14px;
+    margin: 5px 4px;
+    border-radius: 6px;
+    background: rgba(195, 160, 232, 0.06);
+    transition: all 0.2s ease;
+}
+
+#custom-media.playing {
+    color: #c3a0e8;
+    background: rgba(195, 160, 232, 0.08);
+}
+
+#custom-media.paused {
+    color: #5a6078;
+    background: transparent;
+    font-style: italic;
+}
+
+#custom-media.stopped {
+    /* hide when nothing is playing */
+    padding: 0;
+    margin: 0;
+    background: transparent;
+}
+
+#custom-media:hover {
+    color: #e0c0ff;
+    background: rgba(195, 160, 232, 0.14);
+}
+
+/* ── Reloj ─────────────────────────────────── */
+
+#clock {
+    color: #c5cfe8;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    padding: 0 14px;
+    background: rgba(0, 229, 197, 0.06);
+    border-radius: 6px;
+    margin: 5px 0;
+}
+
+#clock:hover {
+    background: rgba(0, 229, 197, 0.11);
+    color: #00e5c5;
+}
+
+/* ── Módulos derecha — base ────────────────── */
+
+#pulseaudio, #network, #cpu, #memory,
+#temperature, #battery, #tray,
+#custom-sep, #custom-power {
+    padding: 0 11px;
+    margin: 5px 0;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    font-size: 14px;
+}
+
+#pulseaudio  { color: #5eb4ff; }
+#network     { color: #00e5c5; }
+#cpu         { color: #a78bfa; }
+#memory      { color: #c3e88d; }
+#temperature { color: #ffc777; }
+#battery     { color: #c5cfe8; }
+
+#pulseaudio:hover  { background: rgba(94,  180, 255, 0.08); }
+#network:hover     { background: rgba(0,   229, 197, 0.08); }
+#cpu:hover         { background: rgba(167, 139, 250, 0.08); }
+#memory:hover      { background: rgba(195, 232, 141, 0.08); }
+#temperature:hover { background: rgba(255, 199, 119, 0.08); }
+
+/* ── Estados especiales ────────────────────── */
+
+#battery.warning         { color: #ffc777; }
+#battery.critical        { color: #ff6b7a; }
+#battery.charging        { color: #00e5c5; }
+#battery.plugged         { color: #c3e88d; }
+#temperature.critical    { color: #ff6b7a; }
+#pulseaudio.muted        { color: #4a5068; }
+
+/* ── Separador ─────────────────────────────── */
+
+#custom-sep {
+    color: #1a1e2a;
+    font-size: 20px;
+    padding: 0 4px;
+}
+
+/* ── Systray ───────────────────────────────── */
+
+#tray { padding: 0 8px; }
+
+#tray > .passive { -gtk-icon-effect: dim; }
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background: rgba(255, 107, 122, 0.12);
+    border-radius: 4px;
+}
+
+/* ── Power ─────────────────────────────────── */
+
+#custom-power {
+    color: #ff6b7a;
+    font-size: 17px;
+    padding: 0 16px 0 8px;
+}
+
+#custom-power:hover {
+    color: #fff;
+    background: rgba(255, 107, 122, 0.14);
+}
