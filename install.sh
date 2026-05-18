@@ -146,23 +146,34 @@ sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
 ok "Paquetes base instalados"
 
 # ─────────────────────────────────────────────────────────────────
-# 3. AUR HELPER (yay)
+# 3. AUR HELPER (paru/yay)
 # ─────────────────────────────────────────────────────────────────
-if ! command -v yay &>/dev/null; then
-    log "Instalando yay (AUR helper)..."
-    rm -rf /tmp/yay-install
-    git clone https://aur.archlinux.org/yay.git /tmp/yay-install
-    (cd /tmp/yay-install && makepkg -si --noconfirm)
-    rm -rf /tmp/yay-install
-    ok "yay instalado"
+if command -v paru &>/dev/null; then
+    AUR_HELPER="paru"
+    ok "paru detectado"
+elif command -v yay &>/dev/null; then
+    AUR_HELPER="yay"
+    ok "yay detectado"
 else
-    ok "yay ya está instalado"
+    log "Instalando paru (AUR helper)..."
+    # CachyOS incluye paru en sus repos oficiales, intentamos con pacman primero
+    if sudo pacman -S --needed --noconfirm paru 2>/dev/null; then
+        AUR_HELPER="paru"
+    else
+        rm -rf /tmp/paru-install
+        sudo pacman -S --needed --noconfirm base-devel git
+        git clone https://aur.archlinux.org/paru.git /tmp/paru-install
+        (cd /tmp/paru-install && makepkg -si --noconfirm)
+        rm -rf /tmp/paru-install
+        AUR_HELPER="paru"
+    fi
+    ok "paru instalado"
 fi
 
 # ─────────────────────────────────────────────────────────────────
 # 4. PAQUETES AUR
 # ─────────────────────────────────────────────────────────────────
-log "Instalando paquetes AUR..."
+log "Instalando paquetes AUR usando $AUR_HELPER..."
 
 AUR_PKGS=(
     grimblast-git        # screenshot con área/ventana
@@ -175,7 +186,7 @@ AUR_PKGS=(
     waypaper             # GUI para cambiar wallpaper
 )
 
-yay -S --needed --noconfirm "${AUR_PKGS[@]}"
+$AUR_HELPER -S --needed --noconfirm "${AUR_PKGS[@]}"
 ok "Paquetes AUR instalados"
 
 # ─────────────────────────────────────────────────────────────────
