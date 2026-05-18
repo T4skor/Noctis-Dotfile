@@ -1,311 +1,290 @@
 #!/usr/bin/env bash
-##############################################
-#   NOCTIS — Dotfiles Installer
-#   Arch Linux + Hyprland
-##############################################
-
+# ╔══════════════════════════════════════════════════════════════╗
+# ║            NOCTIS — Dotfiles Installer                      ║
+# ║            Arch Linux + Hyprland + Cyberpunk                ║
+# ╚══════════════════════════════════════════════════════════════╝
 set -euo pipefail
 
-# ── Colores ──────────────────────────────────
+# ─────────────────────────────────────────────────────────────────
+# COLORES
+# ─────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
-PURPLE='\033[0;35m'
 YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+log()  { echo -e "${CYAN}${BOLD}[*]${NC} $*"; }
+ok()   { echo -e "${GREEN}${BOLD}[✓]${NC} $*"; }
+warn() { echo -e "${YELLOW}${BOLD}[!]${NC} $*"; }
+err()  { echo -e "${RED}${BOLD}[✗]${NC} $*"; exit 1; }
+
+# ─────────────────────────────────────────────────────────────────
+# SEGURIDAD: no ejecutar como root
+# ─────────────────────────────────────────────────────────────────
+if [[ "$EUID" -eq 0 ]]; then
+    err "No ejecutes este script como root. Usa tu usuario normal."
+fi
+
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# ── Funciones ────────────────────────────────
+echo ""
+echo -e "${CYAN}${BOLD}"
+echo "  ███╗   ██╗ ██████╗  ██████╗████████╗██╗███████╗"
+echo "  ████╗  ██║██╔═══██╗██╔════╝╚══██╔══╝██║██╔════╝"
+echo "  ██╔██╗ ██║██║   ██║██║        ██║   ██║███████╗"
+echo "  ██║╚██╗██║██║   ██║██║        ██║   ██║╚════██║"
+echo "  ██║ ╚████║╚██████╔╝╚██████╗   ██║   ██║███████║"
+echo "  ╚═╝  ╚═══╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚══════╝"
+echo -e "${NC}"
+echo -e "  ${BOLD}Dotfiles Installer — Arch + Hyprland + Cyberpunk${NC}"
+echo ""
 
-print_header() {
-    echo ""
-    echo -e "${PURPLE}${BOLD}"
-    echo "  ╔══════════════════════════════════════╗"
-    echo "  ║     🌙 NOCTIS — Dotfiles Installer   ║"
-    echo "  ║     Arch Linux + Hyprland            ║"
-    echo "  ╚══════════════════════════════════════╝"
-    echo -e "${NC}"
-}
+# ─────────────────────────────────────────────────────────────────
+# 1. ACTUALIZAR SISTEMA
+# ─────────────────────────────────────────────────────────────────
+log "Actualizando sistema..."
+sudo pacman -Syu --noconfirm
+ok "Sistema actualizado"
 
-log_info()    { echo -e "  ${CYAN}[INFO]${NC}    $1"; }
-log_ok()      { echo -e "  ${GREEN}[  OK]${NC}    $1"; }
-log_warn()    { echo -e "  ${YELLOW}[WARN]${NC}    $1"; }
-log_error()   { echo -e "  ${RED}[ERROR]${NC}   $1"; }
-log_step()    { echo -e "\n  ${PURPLE}${BOLD}▸ $1${NC}"; }
+# ─────────────────────────────────────────────────────────────────
+# 2. PAQUETES BASE (pacman)
+# ─────────────────────────────────────────────────────────────────
+log "Instalando paquetes base..."
 
-confirm() {
-    echo ""
-    read -rp "  ¿Continuar? [s/N] " answer
-    [[ "$answer" =~ ^[sS]$ ]] || { log_warn "Cancelado por el usuario."; exit 0; }
-}
+PACMAN_PKGS=(
+    # ── Hyprland core ──────────────────────────────────────────
+    hyprland
+    hyprlock
+    hypridle
+    hyprpaper
+    xdg-desktop-portal-hyprland
+    xdg-desktop-portal-gtk       # fallback portal para apps GTK
+    xdg-user-dirs                # crea ~/Pictures, ~/Downloads, etc.
 
-# ── Verificaciones ───────────────────────────
+    # ── Wayland utils ──────────────────────────────────────────
+    waybar
+    wofi
+    dunst
+    wl-clipboard
+    cliphist
+    grim
+    slurp
+    qt5-wayland
+    qt6-wayland
 
-check_arch() {
-    if ! command -v pacman &>/dev/null; then
-        log_error "Este instalador requiere Arch Linux (pacman no encontrado)."
-        exit 1
-    fi
-}
+    # ── Terminal & shell ────────────────────────────────────────
+    kitty
+    fish
+    starship
+    zoxide
+    eza                          # ls con colores
+    bat                          # cat con syntax highlight
+    fd                           # find moderno
+    ripgrep
+    fzf
 
-check_hyprland() {
-    if ! command -v Hyprland &>/dev/null && ! command -v hyprctl &>/dev/null; then
-        log_warn "Hyprland no está instalado. Se instalará con las dependencias."
-    else
-        local version
-        version=$(hyprctl version 2>/dev/null | head -1 | grep -oP '[\d.]+' | head -1 || echo "desconocida")
-        log_info "Hyprland detectado: v${version}"
-    fi
-}
+    # ── Audio ───────────────────────────────────────────────────
+    pipewire
+    pipewire-pulse
+    pipewire-alsa
+    wireplumber
+    pavucontrol
 
-# ── Instalación de paquetes ──────────────────
+    # ── Red & Bluetooth ─────────────────────────────────────────
+    networkmanager
+    network-manager-applet
+    nm-connection-editor
+    blueman
+    bluez
+    bluez-utils
 
-install_packages() {
-    log_step "Instalando paquetes con pacman"
+    # ── Multimedia ──────────────────────────────────────────────
+    playerctl
+    brightnessctl
+    mpv
 
-    local packages=(
-        # Compositor
-        hyprland
+    # ── Fuentes ─────────────────────────────────────────────────
+    ttf-jetbrains-mono-nerd
+    ttf-firacode-nerd
+    noto-fonts
+    noto-fonts-emoji
+    noto-fonts-cjk
+    otf-font-awesome
+    ttf-liberation
 
-        # Utilidades de Hyprland
-        hyprlock
-        hypridle
-        hyprpaper
-        xdg-desktop-portal-hyprland
+    # ── Iconos & temas GTK ──────────────────────────────────────
+    papirus-icon-theme
+    gnome-themes-extra
+    adwaita-icon-theme
 
-        # Barra y notificaciones
-        waybar
-        dunst
+    # ── Polkit ──────────────────────────────────────────────────
+    polkit-kde-agent
 
-        # Launcher y menús
-        wofi
+    # ── Archivos & utils ────────────────────────────────────────
+    thunar
+    thunar-volman
+    tumbler
+    gvfs
+    ark
+    unzip
+    p7zip
+    curl
+    wget
+    git
+    base-devel
+    jq
 
-        # Terminal
-        kitty
+    # ── Sistema ─────────────────────────────────────────────────
+    btop
+    fastfetch
+    man-db
+)
 
-        # Screenshots y portapapeles
-        grimblast-git
-        cliphist
-        wl-clipboard
+sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
+ok "Paquetes base instalados"
 
-        # Multimedia
-        playerctl
-        brightnessctl
-        wireplumber
-        pipewire
-        pipewire-pulse
-        pavucontrol
-
-        # Bluetooth y red
-        blueman
-        network-manager-applet
-
-        # Fuentes
-        ttf-jetbrains-mono-nerd
-        otf-font-awesome
-        noto-fonts
-        noto-fonts-emoji
-
-        # Temas e iconos
-        papirus-icon-theme
-
-        # Otros
-        polkit-kde-agent
-    )
-
-    # Separar paquetes oficiales de AUR
-    local official=()
-    local aur=()
-
-    for pkg in "${packages[@]}"; do
-        if pacman -Si "$pkg" &>/dev/null; then
-            official+=("$pkg")
-        else
-            aur+=("$pkg")
-        fi
-    done
-
-    if [ ${#official[@]} -gt 0 ]; then
-        log_info "Instalando ${#official[@]} paquetes oficiales..."
-        sudo pacman -S --needed --noconfirm "${official[@]}" || {
-            log_warn "Algunos paquetes oficiales fallaron. Continuando..."
-        }
-    fi
-
-    if [ ${#aur[@]} -gt 0 ]; then
-        log_info "Paquetes AUR detectados: ${aur[*]}"
-        if command -v yay &>/dev/null; then
-            log_info "Instalando con yay..."
-            yay -S --needed --noconfirm "${aur[@]}" || log_warn "Algunos paquetes AUR fallaron."
-        elif command -v paru &>/dev/null; then
-            log_info "Instalando con paru..."
-            paru -S --needed --noconfirm "${aur[@]}" || log_warn "Algunos paquetes AUR fallaron."
-        else
-            log_warn "No se encontró yay ni paru. Instálalos manualmente:"
-            for pkg in "${aur[@]}"; do
-                echo "        - $pkg"
-            done
-        fi
-    fi
-
-    log_ok "Paquetes instalados"
-}
-
-# ── Crear symlinks ───────────────────────────
-
-backup_and_link() {
-    local src="$1"
-    local dest="$2"
-
-    # Crear directorio padre si no existe
-    mkdir -p "$(dirname "$dest")"
-
-    # Backup si ya existe y no es un symlink al mismo destino
-    if [ -e "$dest" ] && [ ! -L "$dest" ]; then
-        local backup="${dest}.bak.$(date +%Y%m%d_%H%M%S)"
-        mv "$dest" "$backup"
-        log_warn "Backup: $(basename "$dest") → $(basename "$backup")"
-    elif [ -L "$dest" ]; then
-        rm "$dest"
-    fi
-
-    ln -sf "$src" "$dest"
-    log_ok "$(basename "$dest") → $(basename "$src")"
-}
-
-link_configs() {
-    log_step "Enlazando configuraciones"
-
-    # Hyprland
-    backup_and_link "$DOTFILES_DIR/hypr" "$HOME/.config/hypr"
-
-    # Waybar
-    backup_and_link "$DOTFILES_DIR/waybar" "$HOME/.config/waybar"
-
-    # Wofi
-    backup_and_link "$DOTFILES_DIR/wofi" "$HOME/.config/wofi"
-
-    # Kitty
-    backup_and_link "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
-
-    # Dunst
-    backup_and_link "$DOTFILES_DIR/dunst" "$HOME/.config/dunst"
-
-    log_ok "Todas las configs enlazadas"
-}
-
-# ── Permisos de scripts ──────────────────────
-
-set_permissions() {
-    log_step "Configurando permisos de scripts"
-
-    find "$DOTFILES_DIR" -name "*.sh" -exec chmod +x {} \;
-    log_ok "Scripts marcados como ejecutables"
-}
-
-# ── Setup de wallpapers ──────────────────────
-
-setup_wallpapers() {
-    log_step "Configurando wallpapers"
-
-    mkdir -p "$HOME/Pictures/wallpapers"
-
-    if [ ! -f "$HOME/Pictures/wallpaper.png" ]; then
-        log_warn "No se encontró ~/Pictures/wallpaper.png"
-        log_info "Pon tu wallpaper favorito en ~/Pictures/wallpaper.png"
-        log_info "O usa SUPER+SHIFT+W para el selector de fondos"
-    else
-        log_ok "Wallpaper encontrado"
-    fi
-
-    log_ok "Directorio ~/Pictures/wallpapers/ listo"
-}
-
-# ── Post-instalación ─────────────────────────
-
-post_install() {
-    log_step "Post-instalación"
-
-    # Habilitar servicios si no están activos
-    if command -v bluetoothctl &>/dev/null; then
-        sudo systemctl enable --now bluetooth.service 2>/dev/null || true
-        log_ok "Bluetooth habilitado"
-    fi
-
-    if command -v NetworkManager &>/dev/null; then
-        sudo systemctl enable --now NetworkManager.service 2>/dev/null || true
-        log_ok "NetworkManager habilitado"
-    fi
-
-    if command -v pipewire &>/dev/null; then
-        systemctl --user enable --now pipewire.service 2>/dev/null || true
-        systemctl --user enable --now pipewire-pulse.service 2>/dev/null || true
-        systemctl --user enable --now wireplumber.service 2>/dev/null || true
-        log_ok "PipeWire habilitado"
-    fi
-}
-
-# ── Resumen final ────────────────────────────
-
-print_summary() {
-    echo ""
-    echo -e "${GREEN}${BOLD}"
-    echo "  ╔══════════════════════════════════════╗"
-    echo "  ║       ✅ Instalación completada       ║"
-    echo "  ╚══════════════════════════════════════╝"
-    echo -e "${NC}"
-    echo -e "  ${BOLD}Próximos pasos:${NC}"
-    echo ""
-    echo -e "  ${CYAN}1.${NC} Pon un wallpaper en ~/Pictures/wallpaper.png"
-    echo -e "  ${CYAN}2.${NC} Inicia sesión en Hyprland desde tu display manager"
-    echo -e "  ${CYAN}3.${NC} O desde TTY: ${BOLD}Hyprland${NC}"
-    echo ""
-    echo -e "  ${BOLD}Atajos clave:${NC}"
-    echo -e "  ${PURPLE}SUPER + Return${NC}      Terminal (Kitty)"
-    echo -e "  ${PURPLE}SUPER + Space${NC}       Launcher (Wofi)"
-    echo -e "  ${PURPLE}SUPER + B${NC}           Navegador"
-    echo -e "  ${PURPLE}SUPER + L${NC}           Bloquear pantalla"
-    echo -e "  ${PURPLE}SUPER + SHIFT + R${NC}   Recargar config"
-    echo -e "  ${PURPLE}SUPER + SHIFT + W${NC}   Cambiar wallpaper"
-    echo ""
-    echo -e "  ${YELLOW}Recuerda editar ~/.config/hypr/hyprland.conf${NC}"
-    echo -e "  ${YELLOW}para ajustar monitor y apps por defecto.${NC}"
-    echo ""
-}
-
-# ══════════════════════════════════════════════
-# MAIN
-# ══════════════════════════════════════════════
-
-main() {
-    print_header
-
-    log_info "Directorio de dotfiles: $DOTFILES_DIR"
-    check_arch
-    check_hyprland
-
-    echo ""
-    echo -e "  Este script va a:"
-    echo -e "  ${CYAN}1.${NC} Instalar paquetes necesarios (pacman/yay)"
-    echo -e "  ${CYAN}2.${NC} Enlazar configs a ~/.config/"
-    echo -e "  ${CYAN}3.${NC} Configurar permisos y wallpapers"
-    echo -e "  ${CYAN}4.${NC} Habilitar servicios (bluetooth, red, audio)"
-    echo ""
-    echo -e "  ${YELLOW}Se hará backup de configs existentes (.bak)${NC}"
-
-    confirm
-
-    install_packages
-    set_permissions
-    link_configs
-    setup_wallpapers
-    post_install
-    print_summary
-}
-
-# Solo ejecutar si no se hace source
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
+# ─────────────────────────────────────────────────────────────────
+# 3. AUR HELPER (yay)
+# ─────────────────────────────────────────────────────────────────
+if ! command -v yay &>/dev/null; then
+    log "Instalando yay (AUR helper)..."
+    rm -rf /tmp/yay-install
+    git clone https://aur.archlinux.org/yay.git /tmp/yay-install
+    (cd /tmp/yay-install && makepkg -si --noconfirm)
+    rm -rf /tmp/yay-install
+    ok "yay instalado"
+else
+    ok "yay ya está instalado"
 fi
+
+# ─────────────────────────────────────────────────────────────────
+# 4. PAQUETES AUR
+# ─────────────────────────────────────────────────────────────────
+log "Instalando paquetes AUR..."
+
+AUR_PKGS=(
+    grimblast-git        # screenshot con área/ventana
+    wlogout              # menú logout con botones
+    hyprshot             # screenshot wrapper para Hyprland
+    swww                 # wallpaper animado (alternativa a hyprpaper)
+    vesktop-bin          # Discord con Wayland nativo
+    spotify              # Spotify
+    nwg-look             # configurar tema GTK en Wayland
+    waypaper             # GUI para cambiar wallpaper
+)
+
+yay -S --needed --noconfirm "${AUR_PKGS[@]}"
+ok "Paquetes AUR instalados"
+
+# ─────────────────────────────────────────────────────────────────
+# 5. XDG USER DIRS
+# ─────────────────────────────────────────────────────────────────
+log "Creando directorios de usuario estándar..."
+xdg-user-dirs-update
+mkdir -p \
+    ~/Pictures/wallpapers \
+    ~/Pictures/screenshots \
+    ~/Documents \
+    ~/Downloads \
+    ~/Videos \
+    ~/Music \
+    ~/.local/bin
+ok "Directorios creados"
+
+# ─────────────────────────────────────────────────────────────────
+# 6. SYMLINKS DE CONFIGS
+# ─────────────────────────────────────────────────────────────────
+log "Enlazando configuraciones..."
+
+mkdir -p ~/.config
+
+# Función segura para crear symlinks (elimina si ya existe)
+link_config() {
+    local src="$DOTFILES_DIR/$1"
+    local dst="$HOME/.config/$1"
+
+    if [[ ! -d "$src" && ! -f "$src" ]]; then
+        warn "No existe $src — saltando"
+        return
+    fi
+
+    # Si ya existe como symlink o directorio, hacer backup
+    if [[ -e "$dst" || -L "$dst" ]]; then
+        warn "Backup: $dst → ${dst}.bak"
+        rm -rf "${dst}.bak"
+        mv "$dst" "${dst}.bak"
+    fi
+
+    ln -sf "$src" "$dst"
+    ok "Enlazado: ~/.config/$1"
+}
+
+link_config hypr
+link_config waybar
+link_config wofi
+link_config kitty
+link_config dunst
+link_config fish
+link_config starship
+
+# Starship config si está en raíz del dotfiles
+if [[ -f "$DOTFILES_DIR/starship.toml" ]]; then
+    ln -sf "$DOTFILES_DIR/starship.toml" ~/.config/starship.toml
+    ok "Enlazado: ~/.config/starship.toml"
+fi
+
+# ─────────────────────────────────────────────────────────────────
+# 7. SHELL — fish como default
+# ─────────────────────────────────────────────────────────────────
+log "Configurando fish como shell por defecto..."
+FISH_PATH="$(command -v fish)"
+if ! grep -q "$FISH_PATH" /etc/shells; then
+    echo "$FISH_PATH" | sudo tee -a /etc/shells > /dev/null
+fi
+if [[ "$SHELL" != "$FISH_PATH" ]]; then
+    chsh -s "$FISH_PATH"
+    ok "Shell cambiada a fish (efectivo al reiniciar sesión)"
+else
+    ok "fish ya es la shell por defecto"
+fi
+
+# ─────────────────────────────────────────────────────────────────
+# 8. SERVICIOS DE USUARIO
+# ─────────────────────────────────────────────────────────────────
+log "Habilitando servicios de usuario..."
+systemctl --user enable --now pipewire          2>/dev/null || true
+systemctl --user enable --now pipewire-pulse    2>/dev/null || true
+systemctl --user enable --now wireplumber       2>/dev/null || true
+ok "Servicios de audio activos"
+
+# ─────────────────────────────────────────────────────────────────
+# 9. SERVICIOS DE SISTEMA
+# ─────────────────────────────────────────────────────────────────
+log "Habilitando servicios de sistema..."
+sudo systemctl enable --now NetworkManager  2>/dev/null || true
+sudo systemctl enable --now bluetooth       2>/dev/null || true
+ok "NetworkManager y Bluetooth activos"
+
+# ─────────────────────────────────────────────────────────────────
+# 10. PERMISOS
+# ─────────────────────────────────────────────────────────────────
+log "Aplicando permisos a scripts..."
+find "$DOTFILES_DIR" -name "*.sh" -exec chmod +x {} \;
+ok "Permisos aplicados"
+
+# ─────────────────────────────────────────────────────────────────
+# FIN
+# ─────────────────────────────────────────────────────────────────
+echo ""
+echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}${BOLD}║        Instalación completada ✓              ║${NC}"
+echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  ${BOLD}Próximos pasos:${NC}"
+echo -e "  ${CYAN}1.${NC} Pon un wallpaper en ${BOLD}~/Pictures/wallpapers/${NC}"
+echo -e "  ${CYAN}2.${NC} Comprueba ${BOLD}~/.config/hypr/hyprpaper.conf${NC} apunta a tu wallpaper"
+echo -e "  ${CYAN}3.${NC} Reinicia o ejecuta ${BOLD}Hyprland${NC} desde tty"
+echo -e "  ${CYAN}4.${NC} Configs con backup en ${BOLD}~/.config/<nombre>.bak${NC}"
+echo ""
